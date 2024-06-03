@@ -1,0 +1,37 @@
+60, -32, 69.577
+59.988, -33.999, 65.858
+59.709, -35.975, 61.921
+59.059, -37.86, 57.721
+57.965, -39.525, 53.743
+56.454, -40.824, 57.337
+54.645, -41.665, 70.175
+52.7, -42.116, 78.14
+50.707, -42.263, 84.079
+48.71, -42.174, 86.342
+46.729, -41.906, 89.761
+44.769, -41.509, 91.039
+42.838, -40.991, 89.217
+40.932, -40.386, 86.347
+39.051, -39.707, 83.378
+37.198, -38.954, 80.298
+35.37, -38.144, 77.097
+33.565, -37.283, 73.756
+31.783, -36.375, 70.256
+30.023, -35.424, 66.573
+28.286, -34.434, 62.674
+26.57, -33.406, 58.515
+24.876, -32.344, 54.037
+23.202, -31.248, 49.153
+21.55, -30.121, 43.726
+19.919, -28.963, 37.523
+18.309, -27.777, 30.067
+16.72, -26.563, 20
+16, -26, 0
+16, -26, 0
+0.242, -13.683, 0
+endData
+126
+100
+200
+60, -32, 60.981, -49.324, 37.475, -42.966, 16, -26
+#PATH.JERRYIO-DATA {"appVersion":"0.6.0","format":"LemLib v0.4.x (inch, byte-voltage)","gc":{"robotWidth":14.9,"robotHeight":17.7,"robotIsHolonomic":false,"showRobot":true,"uol":2.54,"pointDensity":2,"controlMagnetDistance":0.7750015500031,"fieldImage":{"displayName":"VRC 2024 - Over Under (Skill)","signature":"VRC 2024 - Over Under (Skill)","origin":{"__type":"built-in"}}},"paths":[{"segments":[{"controls":[{"uid":"Y0aJEeoCui","x":60,"y":-32,"lock":false,"visible":true,"heading":0,"__type":"end-point"},{"uid":"0UvW7wd98S","x":60.98106685603292,"y":-49.32433843647528,"lock":false,"visible":true,"__type":"control"},{"uid":"oAcRAgvMcK","x":37.47493681990015,"y":-42.96612293489838,"lock":false,"visible":true,"__type":"control"},{"uid":"N2wXL5nHxq","x":16,"y":-26,"lock":false,"visible":true,"heading":270,"__type":"end-point"}],"speedProfiles":[],"lookaheadKeyframes":[],"uid":"Iej3VbvL1P"}],"pc":{"speedLimit":{"minLimit":{"value":0,"label":"0"},"maxLimit":{"value":127,"label":"127"},"step":1,"from":20,"to":100},"bentRateApplicableRange":{"minLimit":{"value":0,"label":"0"},"maxLimit":{"value":1,"label":"1"},"step":0.001,"from":0,"to":0.099},"maxDecelerationRate":126},"name":"Path","uid":"MSQarYhZ0G","lock":false,"visible":true}]}

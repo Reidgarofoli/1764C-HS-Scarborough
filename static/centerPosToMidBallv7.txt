@@ -1,0 +1,36 @@
+35, -55, 112.643
+34.984, -53, 111.979
+34.933, -51.001, 110.171
+34.844, -49.003, 108.333
+34.715, -47.007, 106.463
+34.542, -45.015, 104.56
+34.322, -43.027, 102.622
+34.051, -41.045, 100.646
+33.721, -39.073, 98.631
+33.327, -37.112, 96.574
+32.87, -35.165, 94.472
+32.338, -33.238, 92.322
+31.731, -31.332, 90.121
+31.043, -29.455, 87.865
+30.271, -27.61, 85.55
+29.411, -25.805, 83.17
+28.468, -24.041, 80.72
+27.434, -22.329, 78.193
+26.32, -20.668, 75.582
+25.131, -19.061, 72.877
+23.865, -17.512, 70.068
+22.536, -16.018, 67.141
+21.151, -14.576, 64.081
+19.714, -13.185, 60.867
+18.234, -11.839, 57.473
+16.721, -10.532, 53.866
+15.175, -9.263, 50
+13.428, -7.88, 0
+13.428, -7.88, 0
+-2.259, 4.527, 0
+endData
+100.4
+113
+200
+35, -55, 35, -28.72, 26.875, -18.302, 13.428, -7.88
+#PATH.JERRYIO-DATA {"appVersion":"0.6.0","format":"LemLib v0.4.x (inch, byte-voltage)","gc":{"robotWidth":14.9,"robotHeight":17.7,"robotIsHolonomic":false,"showRobot":true,"uol":2.54,"pointDensity":2,"controlMagnetDistance":1.968503937007874,"fieldImage":{"displayName":"VRC 2024 - Over Under","signature":"VRC 2024 - Over Under","origin":{"__type":"built-in"}}},"paths":[{"segments":[{"controls":[{"uid":"eLARh9Rsz3","x":35,"y":-55,"lock":false,"visible":true,"heading":0,"__type":"end-point"},{"uid":"9UTEmG8X6a","x":35,"y":-28.719862570387082,"lock":false,"visible":true,"__type":"control"},{"uid":"OwFJA9HFST","x":26.87524462802327,"y":-18.30233071740789,"lock":false,"visible":true,"__type":"control"},{"uid":"8MmcHUlq18","x":13.427536532940323,"y":-7.880356943718607,"lock":false,"visible":true,"heading":310,"__type":"end-point"}],"speedProfiles":[],"lookaheadKeyframes":[],"uid":"7F5UpTXCSU"}],"pc":{"speedLimit":{"minLimit":{"value":0,"label":"0"},"maxLimit":{"value":127,"label":"127"},"step":1,"from":50,"to":113},"bentRateApplicableRange":{"minLimit":{"value":0,"label":"0"},"maxLimit":{"value":1,"label":"1"},"step":0.001,"from":0,"to":0.592},"maxDecelerationRate":100.4},"name":"Path","uid":"qA6JMgkEkd","lock":false,"visible":true}]}
