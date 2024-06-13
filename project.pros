@@ -490,7 +490,7 @@
     "upload_options": {
       "after": "screen",
       "description": "Now with paths?",
-      "slot": 1
+      "slot": 2
     }
   }
 }

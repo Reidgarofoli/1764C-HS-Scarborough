@@ -5,15 +5,20 @@
 
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-pros::Motor RightFront(-1, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor RightMid(2, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor RightFront(1, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor RightMid(2, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
 pros::Motor RightBack(3, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);  
-    pros::Motor_Group RDrive({RightFront});//, RightMid, RightBack}); 
+    pros::Motor_Group RDrive({RightFront, RightMid, RightBack}); 
 
-pros::Motor LeftFront(2, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor LeftMid(5, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES); 
-pros::Motor LeftBack(6, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);    
-    pros::Motor_Group LDrive({LeftFront});//, LeftMid, LeftBack}); 
+pros::Motor LeftFront(4, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor LeftMid(5, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES); 
+pros::Motor LeftBack(-6, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);    
+    pros::Motor_Group LDrive({LeftFront, LeftMid, LeftBack}); 
+
+pros::Motor ptoR(7, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor ptoL(8, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
+
+char ptoShift = 'L'; // L=lift    D=drive
 /*
 		
 //Drivetrain config 
@@ -108,15 +113,30 @@ void competition_initialize() {}
 
 void autonomous() {}
 
+void shiftPTO(){
+	if (ptoShift == 'L'){
+		ptoShift = 'D';
+	} else {
+		ptoShift = 'L';
+	}
+}
 
 void opcontrol() {
 
 
 	while (true) {
-		int dir = controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
-		int turn = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
+		int dir = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
+		int turn = -controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
+		printf("%d  %d\n", dir-turn, dir+turn);
 		LDrive.move(dir - turn);
 		RDrive.move(dir + turn);
+		if (ptoShift == 'D'){
+			ptoL.move(dir - turn);
+			ptoR.move(dir + turn);
+		}
+		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_A)){
+			shiftPTO();
+		}
 		pros::delay(20);
 	}
 }
