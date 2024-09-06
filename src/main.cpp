@@ -2,6 +2,7 @@
 #include "sylib/system.hpp"
 #include "sylib/sylib.hpp"
 #include "lemlib/api.hpp"
+#include "pros/optical.hpp"
 
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
@@ -21,17 +22,33 @@ pros::Motor ptoL(8, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREE
 pros::Motor IntakeStageOne(20, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
 pros::Motor IntakeStageTwo(19, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
 
-#define ptopin 4 // D
-pros::ADIDigitalOut pto (ptopin-1);
+#define threeWireExpander_Port 15
+
+#define ptopin 'B' // D
+pros::ADIDigitalOut pto ({{threeWireExpander_Port, ptopin}});
 bool ptovalue = false;
 
-#define mogo 5 // E
+#define mogo 4 // E
 pros::ADIDigitalOut mogomech (mogo);
-pros::ADIDigitalOut mogomechtwo (mogo-1);
 bool mogovalue = false;
+#define mogopin 5 // E
+pros::ADIDigitalOut mogomechtwo (mogopin);
+
+#define cbnpin 6 // F
+pros::ADIDigitalOut cbnmech (cbnpin);
+bool cbnvalue = false;
+
+#define fanumTaxDeployPort 'A'
+pros::ADIDigitalOut fanumTaxDeploy ( {{threeWireExpander_Port, fanumTaxDeployPort}} );
+pros::ADIDigitalOut fanumTax ( 3 );
+bool fanumTaxLiftValue = true;
+bool fanumTaxValue = true;
+#define IntakePort 'F'
+pros::ADIDigitalOut intakelift ( {{threeWireExpander_Port, IntakePort}} );
+bool intakevalue = false;
 
 char ptoShift = 'L'; // L=lift    D=drive
-
+char armcycle = 'D'; // options: D=Down U=Up S=Slam
 		
 //Drivetrain config 
 lemlib::Drivetrain drivetrain {
@@ -109,11 +126,7 @@ void initialize() {
 	chassis.calibrate();
 
 	// set position to x:0, y:0, heading:0
-    // chassis.setPose(0, 0, 0);
-    // chassis.moveToPoint(0, -30, 100000000, false);
-    // chassis.moveToPoint(10, -45, 100000000, false);
-	// chassis.turnTo(10,-24, 100000);
-	// chassis.moveToPoint(20, 0, 100000);
+    
 }
 
 
@@ -123,7 +136,28 @@ void disabled() {}
 void competition_initialize() {}
 
 
-void autonomous() {}
+void autonomous() {
+	chassis.setPose(0, 0, 0);
+	
+	mogomech.set_value(!mogovalue);
+	mogomechtwo.set_value(!mogovalue);
+	mogovalue = !mogovalue;
+    
+	chassis.moveToPoint(0, -35, 100000000, false);
+	
+	mogomech.set_value(!mogovalue);
+	mogomechtwo.set_value(!mogovalue);
+	mogovalue = !mogovalue;
+
+	IntakeStageOne.move(127);
+
+    chassis.moveToPoint(10, -28, 100000000);
+	
+	
+	chassis.turnTo(10,-40, 100000);
+	chassis.moveToPoint(20, 0, 100000);
+	IntakeStageOne.move(0);
+}
 
 void shiftPTO(){
 	if (ptoShift == 'L'){
@@ -135,16 +169,46 @@ void shiftPTO(){
 	}
 }
 
+void cycleArm(bool shouldICycleNow){
+	if (shouldICycleNow){
+		if (armcycle == 'D'){
+			armcycle = 'U';
+		} else if (armcycle == 'U'){
+			armcycle = 'S';
+		} else if (armcycle == 'S'){
+			armcycle = 'D';
+		}
+	}
+	if (armcycle == 'D'){
+		cbnvalue = false;
+		cbnmech.set_value(cbnvalue);
+		intakevalue = true;
+		intakelift.set_value(intakevalue);
+		//motor.move_absolute(0, 100); 
+	}
+	if (armcycle == 'U'){
+		cbnvalue = false;
+		cbnmech.set_value(cbnvalue);
+		intakevalue = false;
+		intakelift.set_value(intakevalue);
+		//motor.move_absolute(100, 100); 
+	}
+	if (armcycle == 'S'){
+		cbnvalue = true;
+		cbnmech.set_value(cbnvalue);
+		intakevalue = false;
+		intakelift.set_value(intakevalue);
+		//motor.move_absolute(50, 100); 
+	}
+}
+
 void opcontrol() {
 
 	mogomech.set_value(mogovalue);
-	mogomechtwo.set_value(mogovalue);
-	shiftPTO();// There has to be two DONT DELETE
-	shiftPTO();// There has to be two DONT DELETE
 	while (true) {
+		controller.print(2, 0, "pto shift:%c", ptoShift);
 		int dir = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
 		int turn = -controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
-		printf("%d  %d\n", dir-turn, dir+turn);
 		LDrive.move(dir - turn);
 		RDrive.move(dir + turn);
 		if (ptoShift == 'D'){
@@ -154,18 +218,33 @@ void opcontrol() {
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_A)){
 			shiftPTO();
 		}
-		if (controller.get_digital(E_CONTROLLER_DIGITAL_R1)){
+		if (controller.get_digital(E_CONTROLLER_DIGITAL_R2)){
 			IntakeStageOne.move(127);
-		} else if (controller.get_digital(E_CONTROLLER_DIGITAL_R2)){
+		} else if (controller.get_digital(E_CONTROLLER_DIGITAL_R1)){
 			IntakeStageOne.move(-127);
 		} else {
 			IntakeStageOne.move(0);
 		}
 
-		if (controller.get_digital(E_CONTROLLER_DIGITAL_L1) && ptoShift == 'L'){
+		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L1)){
+			cycleArm(true);
+			printf("L1 pressed, %c\n", armcycle);
+		}
+		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_RIGHT)){
+			fanumTaxLiftValue = !fanumTaxLiftValue;
+			fanumTaxDeploy.set_value(fanumTaxLiftValue);
+		}
+		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_DOWN)){
+			fanumTaxValue = !fanumTaxValue;
+			fanumTax.set_value(fanumTaxValue);
+		}
+
+		
+
+		if (controller.get_digital(E_CONTROLLER_DIGITAL_Y) && ptoShift == 'L'){
 			ptoL.move(127);
 			ptoR.move(127);
-		} else if (controller.get_digital(E_CONTROLLER_DIGITAL_L2) && ptoShift == 'L'){
+		} else if (controller.get_digital(E_CONTROLLER_DIGITAL_B) && ptoShift == 'L'){
 			ptoL.move(-127);
 			ptoR.move(-127);
 		} else if (ptoShift == 'L') {
@@ -173,7 +252,7 @@ void opcontrol() {
 			ptoR.move(0);
 		}
 
-		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_DOWN)){
+		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L2)){
 			mogomech.set_value(!mogovalue);
 			mogomechtwo.set_value(!mogovalue);
 			mogovalue = !mogovalue;
