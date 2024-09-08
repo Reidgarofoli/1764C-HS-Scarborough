@@ -49,14 +49,18 @@ bool intakevalue = false;
 
 char ptoShift = 'L'; // L=lift    D=drive
 char armcycle = 'D'; // options: D=Down U=Up S=Slam
-		
+
+#define rotate_port 9
+pros::Rotation lift_angle(rotate_port);
+int target_angle = 0; 	// 0 = down, 368 = up
+
 //Drivetrain config 
 lemlib::Drivetrain drivetrain {
 	&LDrive, // left motor group
 	&RDrive, // right motor group
-	12.575, // 10 inch track width
+	14.497386, // 14.5 inch track width
 	lemlib::Omniwheel::NEW_325, // using new 3.25" omnis
-	400, // drivetrain rpm is 360
+	400, // drivetrain rpm is 400
 	8 // Its 8 because we have traction wheels
 };
 		
@@ -153,7 +157,6 @@ void autonomous() {
 
     chassis.moveToPoint(10, -28, 100000000);
 	
-	
 	chassis.turnTo(10,-40, 100000);
 	chassis.moveToPoint(20, 0, 100000);
 	IntakeStageOne.move(0);
@@ -162,9 +165,13 @@ void autonomous() {
 void shiftPTO(){
 	if (ptoShift == 'L'){
 		ptoShift = 'D';
+		ptoL.set_brake_mode(E_MOTOR_BRAKE_COAST);
+		ptoR.set_brake_mode(E_MOTOR_BRAKE_COAST);
 		pto.set_value(false);
 	} else {
 		ptoShift = 'L';
+		ptoL.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+		ptoR.set_brake_mode(E_MOTOR_BRAKE_HOLD);
 		pto.set_value(true);
 	}
 }
@@ -180,6 +187,7 @@ void cycleArm(bool shouldICycleNow){
 		}
 	}
 	if (armcycle == 'D'){
+		target_angle = 0;
 		cbnvalue = false;
 		cbnmech.set_value(cbnvalue);
 		intakevalue = true;
@@ -187,6 +195,7 @@ void cycleArm(bool shouldICycleNow){
 		//motor.move_absolute(0, 100); 
 	}
 	if (armcycle == 'U'){
+		target_angle = 368;
 		cbnvalue = false;
 		cbnmech.set_value(cbnvalue);
 		intakevalue = false;
@@ -194,6 +203,7 @@ void cycleArm(bool shouldICycleNow){
 		//motor.move_absolute(100, 100); 
 	}
 	if (armcycle == 'S'){
+		target_angle = 276;
 		cbnvalue = true;
 		cbnmech.set_value(cbnvalue);
 		intakevalue = false;
@@ -204,6 +214,8 @@ void cycleArm(bool shouldICycleNow){
 
 void opcontrol() {
 
+	shiftPTO();
+	shiftPTO();
 	mogomech.set_value(mogovalue);
 	while (true) {
 		controller.print(2, 0, "pto shift:%c", ptoShift);
@@ -241,15 +253,22 @@ void opcontrol() {
 
 		
 
-		if (controller.get_digital(E_CONTROLLER_DIGITAL_Y) && ptoShift == 'L'){
-			ptoL.move(127);
-			ptoR.move(127);
-		} else if (controller.get_digital(E_CONTROLLER_DIGITAL_B) && ptoShift == 'L'){
-			ptoL.move(-127);
-			ptoR.move(-127);
-		} else if (ptoShift == 'L') {
-			ptoL.move(0);
-			ptoR.move(0);
+		//if (controller.get_digital(E_CONTROLLER_DIGITAL_Y) && ptoShift == 'L'){
+		//	ptoL.move(127);
+		//	ptoR.move(127);
+		//} else if (controller.get_digital(E_CONTROLLER_DIGITAL_B) && ptoShift == 'L'){
+		//	ptoL.move(-127);
+		//	ptoR.move(-127);
+		//} else if (ptoShift == 'L') {
+		//	ptoL.brake();
+		//	ptoR.brake();
+		//}
+		if (lift_angle.get_position() != target_angle){
+			ptoR.move_relative(target_angle - lift_angle.get_position(), 100);
+			ptoL.move_relative(-(target_angle - lift_angle.get_position()), 100);
+		} else {
+			ptoR.brake();
+			ptoL.brake();
 		}
 
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L2)){
