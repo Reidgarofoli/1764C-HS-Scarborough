@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "1764C HS",
+    "project_name": "1764C HS - I think works - lights",
     "target": "v5",
     "templates": {
       "LemLib": {
@@ -490,7 +490,7 @@
     "upload_options": {
       "after": "screen",
       "description": "Now with paths?",
-      "slot": 2
+      "slot": 1
     }
   }
 }

@@ -30,7 +30,7 @@ bool ptovalue = false;
 
 #define mogo 4 // E
 pros::ADIDigitalOut mogomech (mogo);
-bool mogovalue = false;
+bool mogovalue = false; // false
 #define mogopin 5 // E
 pros::ADIDigitalOut mogomechtwo (mogopin);
 
@@ -52,7 +52,11 @@ char armcycle = 'D'; // options: D=Down U=Up S=Slam
 
 #define rotate_port 9
 pros::Rotation lift_angle(rotate_port);
-int target_angle = 0; 	// 0 = down, 368 = up
+int target_angle = 0; 	// 0 = up, 570 = down
+
+int auton = 0;
+char team = 'r';
+bool isTheLiftAtTheDesignatedSpotYet = false;
 
 //Drivetrain config 
 lemlib::Drivetrain drivetrain {
@@ -119,49 +123,336 @@ lemlib::ControllerSettings angularController {
 	0 // maximum acceleration (slew
 };
 
-
-// create the chassis
 lemlib::Chassis chassis(drivetrain, lateralController, angularController, sensors);
+int counter = 0;
+int numColors = 255;
+auto led = sylib::Addrled(threeWireExpander_Port,3,60);
 
+void on_center_button() {
+	if (team == 'r'){
+		team = 'b';
+	} else if (team == 'b'){
+		team = 'r';
+	}
+	pros::lcd::print(0, "auton:%d  team:%c", auton, team);
+	if (team == 'r'){
+		led.set_all(0xff0000);
+	} else if (team == 'b'){
+		led.set_all(0x0000ff);
+	}
+}
+void on_right_button() {
+	if (auton != 3){
+		auton++;
+	}
+	pros::lcd::print(0, "auton:%d  team:%c", auton, team);
+}
+void on_left_button() {
+	if (auton != 0){
+		auton--;
+	}
+	pros::lcd::print(0, "auton:%d  team:%c", auton, team);
+}
+
+long HSBtoRGB(float _hue, float _sat, float _brightness) {
+    float red = 0.0;
+    float green = 0.0;
+    float blue = 0.0;
+    
+    if (_sat == 0.0) {
+        red = _brightness;
+        green = _brightness;
+        blue = _brightness;
+    } else {
+        if (_hue == 360.0) {
+            _hue = 0;
+        }
+
+        int slice = _hue / 60.0;
+        float hue_frac = (_hue / 60.0) - slice;
+
+        float aa = _brightness * (1.0 - _sat);
+        float bb = _brightness * (1.0 - _sat * hue_frac);
+        float cc = _brightness * (1.0 - _sat * (1.0 - hue_frac));
+        
+        switch(slice) {
+            case 0:
+                red = _brightness;
+                green = cc;
+                blue = aa;
+                break;
+            case 1:
+                red = bb;
+                green = _brightness;
+                blue = aa;
+                break;
+            case 2:
+                red = aa;
+                green = _brightness;
+                blue = cc;
+                break;
+            case 3:
+                red = aa;
+                green = bb;
+                blue = _brightness;
+                break;
+            case 4:
+                red = cc;
+                green = aa;
+                blue = _brightness;
+                break;
+            case 5:
+                red = _brightness;
+                green = aa;
+                blue = bb;
+                break;
+            default:
+                red = 0.0;
+                green = 0.0;
+                blue = 0.0;
+                break;
+        }
+    }
+
+    long ired = red * 255.0;
+    long igreen = green * 255.0;
+    long iblue = blue * 255.0;
+    
+    return long((ired << 16) | (igreen << 8) | (iblue));
+}
+void liftControl(void){
+	while (true){
+		if (ptoShift == 'L'){
+			if (target_angle != lift_angle.get_position() / 100){
+				ptoR.move((lift_angle.get_position() / 100 - target_angle) / -4.46);
+				ptoL.move((lift_angle.get_position() / 100 - target_angle) / -4.46);
+				//if ((float)(lift_angle.get_position() / 100 - target_angle) / 4.46 > 0){
+				//	if ((float)(lift_angle.get_position() / 100 - target_angle) / 4.46 > 30){
+				//		ptoR.move(-127);
+				//		ptoL.move(-127);
+				//	} else {
+				//		ptoR.move(-40);
+				//		ptoL.move(-40);
+				//	}
+				//} else if ((float)(lift_angle.get_position() / 100 - target_angle) / 4.46 < 0){
+				//	if ((float)(lift_angle.get_position() / 100 - target_angle) / 4.46 < -30){
+				//		ptoR.move(127);
+				//		ptoL.move(127);
+				//	} else {
+				//		ptoR.move(40);
+				//		ptoL.move(40);
+				//	}
+				//} else {
+				//	ptoR.brake();
+				//	ptoL.brake();
+				//}
+				pros::lcd::print(1, "target:%d", target_angle);
+				pros::lcd::print(2, "current:%d", lift_angle.get_position()/100);
+				pros::lcd::print(3, "moving:%f", (float)(lift_angle.get_position() / 100 - target_angle));
+				printf("moving:%f/n", (float)(lift_angle.get_position() / 100 - target_angle));
+			} else {
+				ptoR.brake();
+				ptoL.brake();
+			}
+		} else {
+			controller.clear_line(2);
+		}
+		delay(20);
+	}
+}
 void initialize() {
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "code works");
 
+	pros::lcd::register_btn0_cb(on_left_button);
+	pros::lcd::register_btn1_cb(on_center_button);
+	pros::lcd::register_btn2_cb(on_right_button);
+
 	chassis.calibrate();
+	lift_angle.reset_position();
+	sylib::initialize();
+	if (team == 'r'){
+		led.set_all(0xff0000);
+	} else if (team == 'b'){
+		led.set_all(0x0000ff);
+	}
 
-	// set position to x:0, y:0, heading:0
-    
+	mogovalue = false;
+	mogomech.set_value(mogovalue);
+	mogomechtwo.set_value(mogovalue);
+
+	pros::Task masterLiftControl(liftControl);
 }
 
+void disabled() {
+	while (true) {
+		for (int i = 0; i < 60; i++){
+            float colorNumber = (counter + i) % (numColors * 2) > numColors ? (counter + i) % (numColors * 2) - numColors: (counter + i) % (numColors * 2);
+            
+            float saturation = 1;
+            float brightness = 1;
+            float hue = (colorNumber / float(numColors)) * 360;
+            long color = HSBtoRGB(hue, saturation, brightness);
+            
+            int red = color >> 16 & 255;
+            int green = color >> 8 & 255;
+            int blue = color & 255; 
 
-void disabled() {}
+            led.set_pixel((red*65536) + (green*256) + blue, i);
 
+            //leds[i] = CRGB ( red, green, blue );
+        }
+	
+	    counter = (counter + 1) % (numColors * 2);
+		pros::delay(20);
+	}
+}
 
-void competition_initialize() {}
-
-
+void competition_initialize() {
+	if (team == 'r'){
+		led.set_all(0xff0000);
+	} else if (team == 'b'){
+		led.set_all(0x0000ff);
+	}
+}
+void cycleArm(bool shouldICycleNow){
+	if (shouldICycleNow){
+		if (armcycle == 'D'){
+			armcycle = 'U';
+		} else if (armcycle == 'U'){
+			armcycle = 'S';
+		} else if (armcycle == 'S'){
+			armcycle = 'D';
+		}
+	}
+	if (armcycle == 'D'){
+		target_angle = 570;
+		cbnvalue = false;
+		cbnmech.set_value(cbnvalue);
+		intakevalue = true;
+		intakelift.set_value(intakevalue);
+	}
+	if (armcycle == 'U'){
+		target_angle = -50;
+		cbnvalue = true;
+		cbnmech.set_value(cbnvalue);
+		intakevalue = false;
+		intakelift.set_value(intakevalue);
+	}
+	if (armcycle == 'S'){
+		target_angle = 300;
+		cbnvalue = true;
+		cbnmech.set_value(cbnvalue);
+		intakevalue = false;
+		intakelift.set_value(intakevalue);
+	}
+}
 void autonomous() {
-	chassis.setPose(0, 0, 0);
-	
-	mogomech.set_value(!mogovalue);
-	mogomechtwo.set_value(!mogovalue);
-	mogovalue = !mogovalue;
-    
-	chassis.moveToPoint(0, -35, 100000000, false);
-	
-	mogomech.set_value(!mogovalue);
-	mogomechtwo.set_value(!mogovalue);
-	mogovalue = !mogovalue;
+	if (auton == 0){
+		//empty auton
+	} else if (auton == 1){
+		if (team == 'r'){
+			chassis.setPose(0, 0, 0);
+			
+			chassis.moveToPoint(0, -30, 100000000, false, 90);
+			delay(1200);
+			mogomech.set_value(!mogovalue);
+			mogomechtwo.set_value(!mogovalue);
+			mogovalue = !mogovalue;
 
-	IntakeStageOne.move(127);
+			delay(500);
 
-    chassis.moveToPoint(10, -28, 100000000);
-	
-	chassis.turnTo(10,-40, 100000);
-	chassis.moveToPoint(20, 0, 100000);
-	IntakeStageOne.move(0);
+			IntakeStageOne.move(127);
+
+			chassis.turnTo(12, -20, 100000000, true, 80);
+			chassis.moveToPoint(12, -20, 100000000, true, 80);
+			chassis.moveToPoint(28, -40, 100000000, true, 80);
+		} else if (team == 'b'){
+			chassis.setPose(0, 0, 0);
+			
+			chassis.moveToPoint(0, -25, 10000, false, 90);
+			delay(1000);
+			mogomech.set_value(!mogovalue);
+			mogomechtwo.set_value(!mogovalue);
+			mogovalue = !mogovalue;
+
+			delay(500);
+
+			IntakeStageOne.move(127);
+
+			chassis.turnTo(-20, -35, 1000, true, 80);
+			delay(1000);
+			chassis.moveToPoint(-20, -35, 10000, true, 80);
+			delay(1000);
+			chassis.turnTo(-20, -40, 1000, true, 80);
+			delay(1000);
+			chassis.moveToPoint(-20, -45, 10000, true, 80);
+		}
+	} else if (auton == 2) {
+		if (team == 'r'){
+			chassis.setPose(0, 0, 0);
+			
+			chassis.moveToPoint(0, -30, 1000, false, 80);
+			delay(1200);
+			mogomech.set_value(!mogovalue);
+			mogomechtwo.set_value(!mogovalue);
+			mogovalue = !mogovalue;
+
+			delay(500);
+
+			IntakeStageOne.move(127);
+
+			chassis.turnTo(-18, -30, 1000, true, 90);
+			chassis.moveToPoint(-30, -30, 1000, true, 90);
+		} else if (team == 'b'){
+			chassis.setPose(0, 0, 0);
+			
+			chassis.moveToPoint(0, -30, 1000, false, 80);
+			delay(1200);
+			mogomech.set_value(!mogovalue);
+			mogomechtwo.set_value(!mogovalue);
+			mogovalue = !mogovalue;
+
+			delay(500);
+
+			IntakeStageOne.move(127);
+
+			chassis.turnTo(18, -30, 1000, true, 60);
+			chassis.moveToPoint(40, -30, 1000, true, 60);
+			delay(3000);
+			intakevalue = false;
+			intakelift.set_value(intakevalue);
+			delay(200);
+			chassis.moveToPoint(-48, -10, 1000, true, 60);
+			delay(5000);
+			intakevalue = true;
+			intakelift.set_value(intakevalue);
+		}
+	} else if(auton == 3) {
+		if (team == 'r'){
+			chassis.setPose(0, 0, 0);
+			chassis.moveToPoint(0, 25, 1000, true, 80);
+			chassis.moveToPoint(0, 22, 1000, false, 80);
+			cycleArm(true);
+			chassis.turnTo(10, 22, 1000, true, 80);
+			chassis.moveToPoint(5, 22, 1000, true, 80);
+			chassis.moveToPoint(0, 22, 1000, false, 80);
+			cycleArm(true);
+			chassis.moveToPoint(-10, 22, 1000, false, 80);
+		}
+	}
 }
-
+void checkPTO(){
+	if (ptoShift == 'D'){
+		ptoL.set_brake_mode(E_MOTOR_BRAKE_COAST);
+		ptoR.set_brake_mode(E_MOTOR_BRAKE_COAST);
+		pto.set_value(false);
+	} else {
+		ptoL.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+		ptoR.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+		pto.set_value(true);
+	}
+}
 void shiftPTO(){
 	if (ptoShift == 'L'){
 		ptoShift = 'D';
@@ -176,49 +467,21 @@ void shiftPTO(){
 	}
 }
 
-void cycleArm(bool shouldICycleNow){
-	if (shouldICycleNow){
-		if (armcycle == 'D'){
-			armcycle = 'U';
-		} else if (armcycle == 'U'){
-			armcycle = 'S';
-		} else if (armcycle == 'S'){
-			armcycle = 'D';
-		}
-	}
-	if (armcycle == 'D'){
-		target_angle = 0;
-		cbnvalue = false;
-		cbnmech.set_value(cbnvalue);
-		intakevalue = true;
-		intakelift.set_value(intakevalue);
-		//motor.move_absolute(0, 100); 
-	}
-	if (armcycle == 'U'){
-		target_angle = 368;
-		cbnvalue = false;
-		cbnmech.set_value(cbnvalue);
-		intakevalue = false;
-		intakelift.set_value(intakevalue);
-		//motor.move_absolute(100, 100); 
-	}
-	if (armcycle == 'S'){
-		target_angle = 276;
-		cbnvalue = true;
-		cbnmech.set_value(cbnvalue);
-		intakevalue = false;
-		intakelift.set_value(intakevalue);
-		//motor.move_absolute(50, 100); 
-	}
-}
-
 void opcontrol() {
-
-	shiftPTO();
-	shiftPTO();
+	checkPTO();
+	cycleArm(false);
 	mogomech.set_value(mogovalue);
+
 	while (true) {
-		controller.print(2, 0, "pto shift:%c", ptoShift);
+		if (mogovalue == true){
+			if (team == 'r'){
+				led.set_all(0xff0000);
+			} else if (team == 'b'){
+				led.set_all(0x0000ff);
+			}
+		} else {
+			led.set_all(0x00ff00);
+		}
 		int dir = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
 		int turn = -controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
 		LDrive.move(dir - turn);
@@ -226,6 +489,7 @@ void opcontrol() {
 		if (ptoShift == 'D'){
 			ptoL.move(dir - turn);
 			ptoR.move(dir + turn);
+			//printf("L:%d R:%d\n", dir - turn, dir + turn);
 		}
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_A)){
 			shiftPTO();
@@ -240,7 +504,7 @@ void opcontrol() {
 
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L1)){
 			cycleArm(true);
-			printf("L1 pressed, %c\n", armcycle);
+			//printf("L1 pressed, %c\n", armcycle);
 		}
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_RIGHT)){
 			fanumTaxLiftValue = !fanumTaxLiftValue;
@@ -249,26 +513,6 @@ void opcontrol() {
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_DOWN)){
 			fanumTaxValue = !fanumTaxValue;
 			fanumTax.set_value(fanumTaxValue);
-		}
-
-		
-
-		//if (controller.get_digital(E_CONTROLLER_DIGITAL_Y) && ptoShift == 'L'){
-		//	ptoL.move(127);
-		//	ptoR.move(127);
-		//} else if (controller.get_digital(E_CONTROLLER_DIGITAL_B) && ptoShift == 'L'){
-		//	ptoL.move(-127);
-		//	ptoR.move(-127);
-		//} else if (ptoShift == 'L') {
-		//	ptoL.brake();
-		//	ptoR.brake();
-		//}
-		if (lift_angle.get_position() != target_angle){
-			ptoR.move_relative(target_angle - lift_angle.get_position(), 100);
-			ptoL.move_relative(-(target_angle - lift_angle.get_position()), 100);
-		} else {
-			ptoR.brake();
-			ptoL.brake();
 		}
 
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L2)){
