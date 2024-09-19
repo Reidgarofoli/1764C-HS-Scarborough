@@ -24,9 +24,6 @@ pros::Motor ptoL(8, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREE
 int auton = 0;
 char team = 'r';
 
-pros::ADIEncoder leftWeel('A', 'B');
-pros::ADIEncoder rightWeel('C', 'D');
-
 //Drivetrain config 
 lemlib::Drivetrain drivetrain {
 	&LDrive, // left motor group
