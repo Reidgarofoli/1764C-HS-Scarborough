@@ -3,6 +3,8 @@
 #include "sylib/sylib.hpp"
 #include "lemlib/api.hpp"
 #include "pros/optical.hpp"
+#include "src/lights.hpp"
+#include "src/autons.hpp"
 
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
@@ -21,8 +23,14 @@ pros::Motor ptoL(8, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREE
 
 #define threeWireExpander_Port 15
 
+auto led = sylib::Addrled(threeWireExpander_Port,3,60);
+
+int maxauto = 4;
 int auton = 0;
-char team = 'r';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////Lemlib stuff//////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Drivetrain config 
 lemlib::Drivetrain drivetrain {
@@ -90,102 +98,34 @@ lemlib::ControllerSettings angularController {
 };
 
 lemlib::Chassis chassis(drivetrain, lateralController, angularController, sensors);
-int counter = 0;
-int numColors = 255;
-auto led = sylib::Addrled(threeWireExpander_Port,3,60);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////Lights////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void on_center_button() {
-	if (team == 'r'){
-		team = 'b';
-	} else if (team == 'b'){
-		team = 'r';
-	}
+	if (team == 'r'){team = 'b';} else {team = 'r';}
 	pros::lcd::print(0, "auton:%d  team:%c", auton, team);
-	if (team == 'r'){
-		led.set_all(0xff0000);
-	} else if (team == 'b'){
-		led.set_all(0x0000ff);
-	}
+	lightsCheck();
 }
+
 void on_right_button() {
-	if (auton != 3){
+	if (auton != maxauto){
 		auton++;
+	} else{
+		auton = 0;
 	}
 	pros::lcd::print(0, "auton:%d  team:%c", auton, team);
 }
 void on_left_button() {
 	if (auton != 0){
 		auton--;
+	} else{
+		auton = maxauto;
 	}
 	pros::lcd::print(0, "auton:%d  team:%c", auton, team);
 }
 
-long HSBtoRGB(float _hue, float _sat, float _brightness) {
-    float red = 0.0;
-    float green = 0.0;
-    float blue = 0.0;
-    
-    if (_sat == 0.0) {
-        red = _brightness;
-        green = _brightness;
-        blue = _brightness;
-    } else {
-        if (_hue == 360.0) {
-            _hue = 0;
-        }
-
-        int slice = _hue / 60.0;
-        float hue_frac = (_hue / 60.0) - slice;
-
-        float aa = _brightness * (1.0 - _sat);
-        float bb = _brightness * (1.0 - _sat * hue_frac);
-        float cc = _brightness * (1.0 - _sat * (1.0 - hue_frac));
-        
-        switch(slice) {
-            case 0:
-                red = _brightness;
-                green = cc;
-                blue = aa;
-                break;
-            case 1:
-                red = bb;
-                green = _brightness;
-                blue = aa;
-                break;
-            case 2:
-                red = aa;
-                green = _brightness;
-                blue = cc;
-                break;
-            case 3:
-                red = aa;
-                green = bb;
-                blue = _brightness;
-                break;
-            case 4:
-                red = cc;
-                green = aa;
-                blue = _brightness;
-                break;
-            case 5:
-                red = _brightness;
-                green = aa;
-                blue = bb;
-                break;
-            default:
-                red = 0.0;
-                green = 0.0;
-                blue = 0.0;
-                break;
-        }
-    }
-
-    long ired = red * 255.0;
-    long igreen = green * 255.0;
-    long iblue = blue * 255.0;
-    
-    return long((ired << 16) | (igreen << 8) | (iblue));
-}
 void initialize() {
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "code works");
@@ -196,47 +136,23 @@ void initialize() {
 
 	chassis.calibrate();
 	sylib::initialize();
-	if (team == 'r'){
-		led.set_all(0xff0000);
-	} else if (team == 'b'){
-		led.set_all(0x0000ff);
-	}
+	
+	lightsCheck();
 }
 
 void disabled() {
 	while (true) {
-		for (int i = 0; i < 60; i++){
-            float colorNumber = (counter + i) % (numColors * 2) > numColors ? (counter + i) % (numColors * 2) - numColors: (counter + i) % (numColors * 2);
-            
-            float saturation = 1;
-            float brightness = 1;
-            float hue = (colorNumber / float(numColors)) * 360;
-            long color = HSBtoRGB(hue, saturation, brightness);
-            
-            int red = color >> 16 & 255;
-            int green = color >> 8 & 255;
-            int blue = color & 255; 
-
-            led.set_pixel((red*65536) + (green*256) + blue, i);
-
-            //leds[i] = CRGB ( red, green, blue );
-        }
-	
-	    counter = (counter + 1) % (numColors * 2);
+		cycle();
 		pros::delay(20);
 	}
 }
 
 void competition_initialize() {
-	if (team == 'r'){
-		led.set_all(0xff0000);
-	} else if (team == 'b'){
-		led.set_all(0x0000ff);
-	}
+	lightsCheck();
 }
 
 void autonomous() {
-	
+	autonselect(auton);
 }
 
 void opcontrol() {
