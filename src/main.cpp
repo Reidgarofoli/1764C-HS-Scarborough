@@ -3,8 +3,8 @@
 #include "sylib/sylib.hpp"
 #include "lemlib/api.hpp"
 #include "pros/optical.hpp"
-#include "src/lights.hpp"
-#include "src/autons.hpp"
+#include "lights.hpp"
+#include "autons.hpp"
 
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
@@ -20,10 +20,6 @@ pros::Motor LeftBack(-6, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_
 
 pros::Motor ptoR(7, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
 pros::Motor ptoL(8, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
-
-#define threeWireExpander_Port 15
-
-auto led = sylib::Addrled(threeWireExpander_Port,3,60);
 
 int maxauto = 4;
 int auton = 0;
