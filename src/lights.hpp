@@ -3,7 +3,6 @@
 #include "sylib/sylib.hpp"
 #include "lemlib/api.hpp"
 #include "pros/optical.hpp"
-//#include "src/main.cpp"
 #define threeWireExpander_Port 15
 auto led = sylib::Addrled(threeWireExpander_Port,3,60);
 
