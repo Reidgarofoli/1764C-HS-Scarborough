@@ -18,7 +18,11 @@ pros::Motor LeftMid(5, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DE
 pros::Motor LeftBack(-6, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);    
     pros::Motor_Group LDrive({LeftFront, LeftMid, LeftBack}); 
 
+pros::Motor intake(7, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);    
 
+bool intaking = false;
+//speed of intake
+int intakespeed = 69;
 int maxauto = 4;
 int auton = 0;
 
@@ -93,9 +97,29 @@ lemlib::ControllerSettings angularController {
 
 lemlib::Chassis chassis(drivetrain, lateralController, angularController, sensors);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////Lights////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//a funtion withc depending on press will move intake
+void intakusmaximus_fn(){
+	while (true){
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
+			delay(300);
+			//if button i sstill pressed we make the motor gor revers
+			if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+				intake.move(-intakespeed);
+			} else {
+				//we change it to active or inactive than run it
+				intaking = !intaking;
+				if (intaking){
+					intake.move(intakespeed);
+				} else{
+					intake.brake();
+				}
+
+			}
+		}
+		delay(20);
+	}
+
+}
 
 void on_center_button() {
 	if (team == 'r'){team = 'b';} else {team = 'r';}
@@ -132,6 +156,9 @@ void initialize() {
 	sylib::initialize();
 	
 	lightsCheck();
+
+	//Calling task they continusly doe sintakus maximus
+	Task intakusmaximus(intakusmaximus_fn);
 }
 
 void disabled() {
@@ -149,6 +176,10 @@ void autonomous() {
 	autonselect(auton);
 }
 
+
+
+
+
 void opcontrol() {
 	while (true) {
 		int dir = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
@@ -157,6 +188,8 @@ void opcontrol() {
 		RDrive.move(dir + turn);
 
 
+		
 		pros::delay(20);
+
 	}
 }
