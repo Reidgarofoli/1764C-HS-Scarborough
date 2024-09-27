@@ -103,3 +103,43 @@ void lightsCheck() {
 		led.set_all(0x0000ff);
 	}
 }
+
+
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+#include "stb_image.h"
+void drawImage(const char *filename, int x, int y, const int w, const int h) {
+    int width, height, n;
+    uint32_t* buf = new uint32_t[w * h];
+
+    FILE *f;
+    char c;
+    char r, g, b;
+    int i = 0, index = 0;
+    f = fopen(filename, "rb");
+    if (f) {
+        while (EOF != r || EOF != g || EOF != b) {
+            c = fgetc(f);
+            switch(i){
+                case 0:
+                    r = c;
+                    break;
+                case 1:
+                    g = c;
+                    break;
+                case 2:
+                    b = c;
+                    buf[index] = ((r * 65536) + (g * 256) + (b));
+                    index++;
+                    break;
+            }
+            i++;
+        }
+        fclose(f);
+    }
+
+
+    screen::copy_area(0,0, 480, 240, buf, 480 + 1);
+    delete[] buf;
+}
