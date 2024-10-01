@@ -22,7 +22,7 @@ pros::Motor intake(7, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEG
 
 bool intaking = false;
 //speed of intake
-int intakespeed = 69;
+int intakespeed = 127;
 int maxauto = 4;
 int auton = 0;
 
