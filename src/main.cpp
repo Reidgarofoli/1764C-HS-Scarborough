@@ -19,12 +19,25 @@ pros::Motor LeftBack(-6, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_
     pros::Motor_Group LDrive({LeftFront, LeftMid, LeftBack}); 
 
 pros::Motor intake(7, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);    
+pros::Motor midlifter(8, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+
+#define mogoR 4 // E
+pros::ADIDigitalOut mogomechR (mogoR);
+#define mogoL 5 // F
+pros::ADIDigitalOut mogomechL (mogoL);
+
 
 bool intaking = false;
 //speed of intake
 int intakespeed = 127;
 int maxauto = 4;
 int auton = 0;
+int midliftPOS = 0;
+float lowmid = 0;
+float midmid = 0;
+float highmid = 0;
+bool mogovalue = false;
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////Lemlib stuff//////////////////////////////////////////////////////
@@ -97,29 +110,7 @@ lemlib::ControllerSettings angularController {
 
 lemlib::Chassis chassis(drivetrain, lateralController, angularController, sensors);
 
-//a funtion withc depending on press will move intake
-void intakusmaximus_fn(){
-	while (true){
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
-			delay(300);
-			//if button i sstill pressed we make the motor gor revers
-			if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-				intake.move(-intakespeed);
-			} else {
-				//we change it to active or inactive than run it
-				intaking = !intaking;
-				if (intaking){
-					intake.move(intakespeed);
-				} else{
-					intake.brake();
-				}
 
-			}
-		}
-		delay(20);
-	}
-
-}
 
 void on_center_button() {
 	if (team == 'r'){team = 'b';} else {team = 'r';}
@@ -144,6 +135,25 @@ void on_left_button() {
 	pros::lcd::print(0, "auton:%d  team:%c", auton, team);
 }
 
+void midlift(){
+	midliftPOS += 1;
+	if (midliftPOS == 3) {
+		midliftPOS = 0;
+	}
+	if (midliftPOS == 0){
+		midlifter.move_absolute(lowmid, 100);
+	}
+	if (midliftPOS == 1){
+		midlifter.move_absolute(midmid,100);
+	}
+	if (midliftPOS == 2){
+		midlifter.move_absolute(highmid, 100);
+	}
+	midlifter.tare_position();
+}
+
+
+
 void initialize() {
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "code works");
@@ -157,8 +167,6 @@ void initialize() {
 	
 	lightsCheck();
 
-	//Calling task they continusly doe sintakus maximus
-	Task intakusmaximus(intakusmaximus_fn);
 }
 
 void disabled() {
@@ -187,8 +195,20 @@ void opcontrol() {
 		LDrive.move(dir - turn);
 		RDrive.move(dir + turn);
 
-
-		
+		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_R2)) {
+			intake.move(127);
+		} else if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_R1)) {
+			intake.move(-127);
+		} else {
+			intake.brake();
+		}
+		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L1)) {
+			midlift();
+		}
+		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L2)) {
+			mogomechR.set_value(!mogovalue);
+			mogomechL.set_value(!mogovalue);
+		}
 		pros::delay(20);
 
 	}
