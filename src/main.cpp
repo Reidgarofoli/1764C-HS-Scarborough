@@ -8,23 +8,21 @@
 
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-pros::Motor RightFront(1, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor RightMid(2, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor RightBack(3, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);  
+pros::Motor RightFront(3, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor RightMid(1, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor RightBack(2, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);  
     pros::Motor_Group RDrive({RightFront, RightMid, RightBack}); 
 
 pros::Motor LeftFront(4, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor LeftMid(5, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES); 
-pros::Motor LeftBack(-6, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);    
+pros::Motor LeftMid(5, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES); 
+pros::Motor LeftBack(6, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);    
     pros::Motor_Group LDrive({LeftFront, LeftMid, LeftBack}); 
 
 pros::Motor intake(7, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);    
-pros::Motor midlifter(8, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor midlifter(8, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER_DEGREES);
 
-#define mogoR 4 // E
-pros::ADIDigitalOut mogomechR (mogoR);
-#define mogoL 5 // F
-pros::ADIDigitalOut mogomechL (mogoL);
+#define mogo 3 // C
+pros::ADIDigitalOut mogomech (mogo);
 
 
 bool intaking = false;
@@ -33,9 +31,9 @@ int intakespeed = 127;
 int maxauto = 4;
 int auton = 0;
 int midliftPOS = 0;
-float lowmid = 0;
-float midmid = 0;
-float highmid = 0;
+double lowmid = 0;
+double midmid = 125;
+double highmid = 420;
 bool mogovalue = false;
 
 
@@ -141,15 +139,14 @@ void midlift(){
 		midliftPOS = 0;
 	}
 	if (midliftPOS == 0){
-		midlifter.move_absolute(lowmid, 100);
+		midlifter.move_absolute(lowmid, 200);
 	}
 	if (midliftPOS == 1){
-		midlifter.move_absolute(midmid,100);
+		midlifter.move_absolute(midmid,200);
 	}
 	if (midliftPOS == 2){
-		midlifter.move_absolute(highmid, 100);
+		midlifter.move_absolute(highmid, 200);
 	}
-	midlifter.tare_position();
 }
 
 
@@ -195,9 +192,9 @@ void opcontrol() {
 		LDrive.move(dir - turn);
 		RDrive.move(dir + turn);
 
-		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_R2)) {
+		if (controller.get_digital(E_CONTROLLER_DIGITAL_R2)) {
 			intake.move(127);
-		} else if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_R1)) {
+		} else if (controller.get_digital(E_CONTROLLER_DIGITAL_R1)) {
 			intake.move(-127);
 		} else {
 			intake.brake();
@@ -206,8 +203,8 @@ void opcontrol() {
 			midlift();
 		}
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L2)) {
-			mogomechR.set_value(!mogovalue);
-			mogomechL.set_value(!mogovalue);
+			mogovalue =!mogovalue;
+			mogomech.set_value(!mogovalue);
 		}
 		pros::delay(20);
 
