@@ -1,6 +1,12 @@
-//crosby was here
-void auton_0() {
+#include "main.h"
+#include "sylib/system.hpp"
+#include "sylib/sylib.hpp"
+#include "lemlib/api.hpp"
+#include "pros/optical.hpp"
 
+extern lemlib::Chassis chassis;
+void auton_0() {
+    chassis.moveToPose(0,0,0,100);
 }
 
 void auton_1() {
