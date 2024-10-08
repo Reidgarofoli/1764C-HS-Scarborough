@@ -19,7 +19,7 @@ pros::Motor LeftBack(6, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_D
     pros::Motor_Group LDrive({LeftFront, LeftMid, LeftBack}); 
 
 pros::Motor intake(7, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);    
-pros::Motor midlifter(8, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor midlifter(10, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER_DEGREES);
 
 #define mogo 3 // C
 pros::ADIDigitalOut mogomech (mogo);
@@ -32,8 +32,9 @@ int maxauto = 4;
 int auton = 0;
 int midliftPOS = 0;
 double lowmid = 0;
-double midmid = 125;
-double highmid = 420;
+double midmid = -105;
+double highmid = -420;
+double liftpos;
 bool mogovalue = false;
 
 
@@ -109,6 +110,7 @@ lemlib::ControllerSettings angularController {
 lemlib::Chassis chassis(drivetrain, lateralController, angularController, sensors);
 
 
+pros::Optical optical_sensor(12);
 
 void on_center_button() {
 	if (team == 'r'){team = 'b';} else {team = 'r';}
@@ -134,21 +136,15 @@ void on_left_button() {
 }
 
 void midlift(){
-	midliftPOS += 1;
-	if (midliftPOS == 3) {
-		midliftPOS = 0;
-	}
-	if (midliftPOS == 0){
-		midlifter.move_absolute(lowmid, 200);
-	}
-	if (midliftPOS == 1){
-		midlifter.move_absolute(midmid,200);
-	}
-	if (midliftPOS == 2){
-		midlifter.move_absolute(highmid, 200);
+	while (true) {
+		if (midlifter.get_position() != liftpos){
+			midlifter.move_absolute(liftpos, 200);
+		} else {
+			midlifter.brake();
+		}
+		delay(20);
 	}
 }
-
 
 
 void initialize() {
@@ -161,9 +157,11 @@ void initialize() {
 
 	chassis.calibrate();
 	sylib::initialize();
+
+	Task liftTask(midlift);
 	
 	lightsCheck();
-
+	midlifter.set_brake_mode(E_MOTOR_BRAKE_HOLD);
 }
 
 void disabled() {
@@ -181,10 +179,6 @@ void autonomous() {
 	autonselect(auton);
 }
 
-
-
-
-
 void opcontrol() {
 	while (true) {
 		int dir = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
@@ -193,14 +187,38 @@ void opcontrol() {
 		RDrive.move(dir + turn);
 
 		if (controller.get_digital(E_CONTROLLER_DIGITAL_R2)) {
-			intake.move(127);
+			if (team == 'b'){
+				if (round(optical_sensor.get_hue() / 15) == 0){
+					intake.move(-127);
+				} else {
+					intake.move(127);
+				}
+			} else {
+				if (round(optical_sensor.get_hue() / 15) == round(225 / 15)){
+					intake.move(-127);
+				} else {
+					intake.move(127);
+				}
+			}
 		} else if (controller.get_digital(E_CONTROLLER_DIGITAL_R1)) {
 			intake.move(-127);
 		} else {
 			intake.brake();
 		}
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L1)) {
-			midlift();
+			midliftPOS += 1;
+			if (midliftPOS == 3) {
+				midliftPOS = 0;
+			}
+			if (midliftPOS == 0){
+				liftpos = lowmid;
+			}
+			if (midliftPOS == 1){
+				liftpos = midmid;
+			}
+			if (midliftPOS == 2){
+				liftpos = highmid;
+			}
 		}
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L2)) {
 			mogovalue =!mogovalue;
