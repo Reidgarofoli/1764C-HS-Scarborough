@@ -44,6 +44,7 @@ void midlift(){
 void initialize() {
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "code works");
+	pros::lcd::print(0, "auton:%d  team:%c", auton, team);
 
 	pros::lcd::register_btn0_cb(on_left_button);
 	pros::lcd::register_btn1_cb(on_center_button);
