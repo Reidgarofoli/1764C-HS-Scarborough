@@ -1,9 +1,39 @@
 #include "variables.hpp"
 
-//crosby was here
+//Red Left
 void auton_0() {
-
-
+    chassis.setPose(0,0,0);//starting point - facing red right // starting 3 inches away from wall, lined up 13 form post, back to wall, flat 
+    intakePOS = false;// "true" = top ring, "false"= bottom ring
+    intakeLifter.set_value(intakePOS);
+    chassis.moveToPose(25,15,90,2500,{.minSpeed=60}, false);// the "90" is the angle, x and y are too much
+    // move to POSE is plan on facing a direction when done
+    // move to POINT is quickest way 
+    intake.move(127);// intake TOP red ring - remeber to not move intake too much
+    delay(1000);//too long
+    intake.brake();
+    //chassis.turnTo(25,100,2500,true,127,false);//turn to alliance stake
+    chassis.moveToPose(25,0,0,2500, {.minSpeed=80}, false); // go to alliance stake
+    
+    
+    
+    /*intake.move(127);//score 2 red rings - preload and ring from first intake
+    delay(1000);
+    intake.brake();
+    chassis.moveToPose(25,0,0,2500, {.minSpeed=80}, false);
+    chassis.moveToPose(40,20,0,2500,{.minSpeed=80}, false);//move to mogo
+    chassis.turnTo(40,-100,2500,true,127,false);
+    chassis.moveToPose(0,100,31,2500,{.minSpeed=80}, false);
+    mogovalue = false; // "false"=close 
+    mogomech.set_value(mogovalue); //mogo clamped on mogo
+    chassis.turnTo(-100,100,2500,true,127,false); // make sure it gets the bottom ring
+    intakePOS = true;// "true" = top ring, "false"= bottom ring
+    intakeLifter.set_value(intakePOS);
+    chassis.moveToPose(-50,100,270,2500,{.minSpeed=80}, false);
+    intake.move(127);//score 1 red rings on mogo
+    delay(2000);
+    intake.brake();
+    chassis.moveToPose(100,50,0,1500,{.minSpeed=80}, false);
+    */
 
 
 
