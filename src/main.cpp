@@ -57,6 +57,7 @@ void initialize() {
 	
 	lightsCheck();
 	midlifter.set_brake_mode(E_MOTOR_BRAKE_HOLD);
+	intakeLifter.set_value(intakePOS);
 
 	mogomech.set_value(mogovalue);
 }
@@ -121,6 +122,11 @@ void opcontrol() {
 			mogovalue =!mogovalue;
 			mogomech.set_value(mogovalue);
 		}
+		
+		/*if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L2)) {
+			intakePOS =! intakePOS;
+			intakeLifter.set_value(intakePOS);
+		}*/
 		pros::delay(20);
 
 	}

@@ -22,10 +22,10 @@ pros::Motor midlifter(10, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER
 #define mogo 3 // C
 pros::ADIDigitalOut mogomech (mogo);
 
-#define intakeport 4 // D
+#define intakeport 6 // D
 pros::ADIDigitalOut intakeLifter (intakeport); // this is the thing that changes if we get the top or bottom ring
 
-bool intakePOS = false;
+bool intakePOS = true;
 bool intaking = false;
 //speed of intake
 int intakespeed = 127;
