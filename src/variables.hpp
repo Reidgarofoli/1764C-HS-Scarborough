@@ -22,7 +22,10 @@ pros::Motor midlifter(10, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER
 #define mogo 3 // C
 pros::ADIDigitalOut mogomech (mogo);
 
-#define intakeport 6 // D
+#define doinkerport 4 // D
+pros::ADIDigitalOut doinker (doinkerport); // this is the thing that clears the corner
+
+#define intakeport 6 // F
 pros::ADIDigitalOut intakeLifter (intakeport); // this is the thing that changes if we get the top or bottom ring
 
 bool intakePOS = true;
@@ -37,6 +40,7 @@ double midmid = -105;
 double highmid = -420;
 double liftpos;
 bool mogovalue = true;
+bool doinkerValue = true;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

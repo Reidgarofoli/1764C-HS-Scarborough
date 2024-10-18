@@ -60,6 +60,7 @@ void initialize() {
 	intakeLifter.set_value(intakePOS);
 
 	mogomech.set_value(mogovalue);
+	optical_sensor.set_led_pwm(50);
 }
 
 void disabled() {
@@ -127,6 +128,10 @@ void opcontrol() {
 			intakePOS =! intakePOS;
 			intakeLifter.set_value(intakePOS);
 		}*/
+		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_DOWN)){
+			doinkerValue = !doinkerValue;
+			doinker.set_value(doinkerValue);
+		}
 		pros::delay(20);
 
 	}

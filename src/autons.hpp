@@ -14,15 +14,6 @@ void auton_0() {
     chassis.moveToPose(-10,32,135,2500,{.forwards=false}, false);
     mogovalue = false;
     mogomech.set_value(mogovalue);
-    
-
-    
-
-
-
-
-
-
 }
 
 void auton_1() {
