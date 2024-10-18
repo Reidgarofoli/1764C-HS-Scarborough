@@ -92,9 +92,9 @@ lemlib::ControllerSettings lateralController {
 	0, // integral gain (kI)
 	3, // derivative gain (kD)
 	3, // anti windup
-	1, // small error range, in inches
+	0.5, // small error range, in inches
 	500, // small error range timeout, in milliseconds
-	3, // large error range, in inches
+	1, // large error range, in inches
 	500, // large error range timeout, in milliseconds
 	20 // maximum acceleration (slew)
 };
@@ -106,7 +106,7 @@ lemlib::ControllerSettings angularController {
 	10, // derivative gain (kD)
 	3, // anti windup
 	1, // small error range, in degrees
-	100, // small error range timeout, in milliseconds
+	200, // small error range timeout, in milliseconds
 	3, // large error range, in degrees
 	500, // large error range timeout, in milliseconds
 	0 // maximum acceleration (slew

@@ -2,18 +2,23 @@
 
 //Red Left
 void auton_0() {
+    int starttime = millis();
     chassis.setPose(0,0,90);//starting point - facing red right // starting 3 inches away from wall, lined up 13 form post, back to wall, flat 
-    chassis.moveToPose(15,0,90,2500,{}, false);// the "90" is the angle, x and y are too much
+    chassis.moveToPose(15,0,90,2000,{}, false);// the "90" is the angle, x and y are too much
     chassis.turnTo(15,-100, true, 127, false);
-    chassis.moveToPose(15,-7,0,2500,{}, false);
+    chassis.moveToPose(15,-6,0,2000,{}, false);
     intake.move(127);
     delay(800);
     intake.brake();
-    chassis.moveToPose(8,10,315,2500,{}, false);
-    //chassis.turnTo(-3,28,1500, false, 127, false);
-    chassis.moveToPose(-10,32,135,2500,{.forwards=false}, false);
+    chassis.moveToPose(22,10,90,2000,{}, false);
+    chassis.moveToPose(-7,27,145,2000,{.forwards=false}, false);
     mogovalue = false;
     mogomech.set_value(mogovalue);
+    delay(1000);
+    chassis.turnTo(-30,30,2000, true, 127, false);
+    //intake.move(127);
+    //chassis.moveToPose(-30,30,270,2000,{.forwards=true}, false);
+    printf("time it took: %d\n", millis() - starttime);
 }
 
 void auton_1() {
