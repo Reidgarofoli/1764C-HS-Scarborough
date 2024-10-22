@@ -1,7 +1,7 @@
 #include "variables.hpp"
 
 //Red Left
-void auton_0() {
+void auton_1() {
     int starttime = millis();
     chassis.setPose(0,0,90);//starting point - facing red right // starting 3 inches away from wall, lined up 13 form post, back to wall, flat 
     chassis.moveToPose(15,0,90,2000,{}, false);// the "90" is the angle, x and y are too much
@@ -12,7 +12,7 @@ void auton_0() {
     intake.brake();
     chassis.moveToPose(22,10,90,2000,{}, false);
     chassis.moveToPose(-7,30,145,2000,{.forwards=false}, false);
-    mogovalue = false;
+    mogovalue = true;
     mogomech.set_value(mogovalue);
     delay(500);
     chassis.turnTo(-30,30,2000, true, 127, false);
@@ -23,15 +23,33 @@ void auton_0() {
     chassis.turnTo(-28,43,2000, true, 127, false);
     chassis.moveToPose(-28,43,315,2000,{.forwards=true}, false);
     delay(10000);
-    mogovalue = true;
+    mogovalue = false;
     mogomech.set_value(mogovalue);
     
     printf("time it took: %d\n", millis() - starttime);
 }
 
-void auton_1() {
-
-
+//goal rush
+void auton_0() {
+    chassis.setPose(0,0,180);
+    if (team == 'r'){
+        chassis.moveToPose(0, 25, 180, 2000, {.forwards = false, .minSpeed = 95}, false);
+        chassis.moveToPose(-7, 43, 150, 2000, {.forwards = false}, false);
+        delay(300);
+        mogovalue = true;
+        mogomech.set_value(mogovalue);
+        delay(300);
+        intake.move(127);
+        chassis.turnTo(-10, 30, 2000, true, 127, false);
+        chassis.moveToPoint(-10, 30, 2000, true, 127, false);
+        chassis.moveToPose(-5, 40, 180, 2000, {.forwards = false}, false);
+        mogovalue = false;
+        mogomech.set_value(mogovalue);
+        chassis.turnTo(-20, 30, 2000, false, 127, false);
+        chassis.moveToPose(-30, 35, 90, 2000, {.forwards = false}, false);
+        mogovalue = true;
+        mogomech.set_value(mogovalue);
+    }
 }
 
 void auton_2() {

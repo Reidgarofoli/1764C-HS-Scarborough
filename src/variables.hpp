@@ -39,7 +39,7 @@ double lowmid = 0;
 double midmid = -105;
 double highmid = -420;
 double liftpos;
-bool mogovalue = true;
+bool mogovalue = false;
 bool doinkerValue = true;
 
 
