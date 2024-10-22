@@ -6,25 +6,33 @@ void auton_0() {
     if (team == 'r'){
         chassis.moveToPose(0, 25, 180, 2000, {.forwards = false, .minSpeed = 95}, false);
         chassis.moveToPose(-7, 43, 150, 2000, {.forwards = false}, false);
-        delay(300);
         mogovalue = true;
         mogomech.set_value(mogovalue);
-        delay(300);
+        delay(200);
         intake.move(127);
         chassis.turnTo(-10, 30, 2000, true, 127, false);
+        chassis.moveToPoint(-10, 26, 400, true, 127, false);
         chassis.moveToPoint(-10, 30, 2000, true, 127, false);
         chassis.moveToPose(-5, 40, 180, 2000, {.forwards = false}, false);
+        intake.brake();
         mogovalue = false;
         mogomech.set_value(mogovalue);
-        chassis.turnTo(-24, 34, 2000, false, 127, false);
-        chassis.moveToPose(-24, 34, 90, 2000, {.forwards = false}, false);
+        chassis.turnTo(-26, 34, 2000, false, 127, false);
+        chassis.moveToPose(-26, 34, 90, 2000, {.forwards = false}, false);
         mogovalue = true;
         mogomech.set_value(mogovalue);
-        delay(300);
-        doinkerValue = !doinkerValue;
-		doinker.set_value(doinkerValue);
-        chassis.turnTo(-55, 0, 2000, true, 127, false);
-        chassis.moveToPose(-55, 10, 270, 2000, {}, false);
+        delay(100);
+        intake.move(127);
+        intakePOS = !intakePOS;
+		intakeLifter.set_value(intakePOS);
+        chassis.turnTo(-55, 10, 2000, true, 127, false);
+        chassis.moveToPose(-55, 10, chassis.getPose().theta, 2000, {}, false);
+        intakePOS = !intakePOS;
+		intakeLifter.set_value(intakePOS);
+        delay(500);
+        chassis.moveToPose(-45, 10, chassis.getPose().theta, 2000, {}, false);
+        
+    
     }
 }
 

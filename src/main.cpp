@@ -38,7 +38,9 @@ void midlift(){
 		}
 		delay(20);
 	}
+	
 }
+
 
 
 void initialize() {
@@ -75,6 +77,7 @@ void competition_initialize() {
 }
 
 void autonomous() {
+	
 	autonselect(auton);
 }
 
