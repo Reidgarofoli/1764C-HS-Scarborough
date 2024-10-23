@@ -29,6 +29,7 @@ void on_left_button() {
 	pros::lcd::print(0, "auton:%d  team:%c", auton, team);
 }
 
+bool seesRing = false;
 void midlift(){
 	while (true) {
 		if (midlifter.get_position() != liftpos){
@@ -36,9 +37,23 @@ void midlift(){
 		} else {
 			midlifter.brake();
 		}
+		if (shouldIntake){
+			if (team == 'b'){
+				if (round(optical_sensor.get_hue() / 15) == 0){
+					intake.move(-127);
+				} else {
+					intake.move(127);
+				}
+			} else {
+				if (round(optical_sensor.get_hue() / 15) == round(225 / 15)){
+					intake.move(-127);
+				} else {
+					intake.move(127);
+				}
+			}
+		}
 		delay(20);
 	}
-	
 }
 
 
@@ -89,22 +104,12 @@ void opcontrol() {
 		RDrive.move(dir + turn);
 
 		if (controller.get_digital(E_CONTROLLER_DIGITAL_R2)) {
-			if (team == 'b'){
-				if (round(optical_sensor.get_hue() / 15) == 0){
-					intake.move(-127);
-				} else {
-					intake.move(127);
-				}
-			} else {
-				if (round(optical_sensor.get_hue() / 15) == round(225 / 15)){
-					intake.move(-127);
-				} else {
-					intake.move(127);
-				}
-			}
+			shouldIntake = true;
 		} else if (controller.get_digital(E_CONTROLLER_DIGITAL_R1)) {
+			shouldIntake = false;
 			intake.move(-127);
 		} else {
+			shouldIntake = false;
 			intake.brake();
 		}
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L1)) {

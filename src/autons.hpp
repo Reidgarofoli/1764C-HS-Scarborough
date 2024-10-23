@@ -22,17 +22,14 @@ void auton_0() {
         mogovalue = true;
         mogomech.set_value(mogovalue);
         delay(100);
-        intake.move(127);
-        intakePOS = !intakePOS;
-		intakeLifter.set_value(intakePOS);
-        chassis.turnTo(-55, 10, 2000, true, 127, false);
-        chassis.moveToPose(-55, 10, chassis.getPose().theta, 2000, {}, false);
-        intakePOS = !intakePOS;
-		intakeLifter.set_value(intakePOS);
-        delay(500);
-        chassis.moveToPose(-45, 10, chassis.getPose().theta, 2000, {}, false);
-        
-    
+        intake.move(0);
+        chassis.moveToPose(-50, 10, 270, 2000, {}, false);
+        doinkerValue = !doinkerValue;
+		doinker.set_value(doinkerValue);
+        chassis.turnTo(-60, 20, 2000, true, 80, false);
+        doinkerValue = !doinkerValue;
+		doinker.set_value(doinkerValue);
+        chassis.moveToPoint(-60, 20, 2000, true, 90, false);
     }
 }
 
