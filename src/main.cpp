@@ -6,6 +6,7 @@
 #include "lights.hpp"
 #include "autons.hpp"
 
+
 void on_center_button() {
 	if (team == 'r'){team = 'b';} else {team = 'r';}
 	pros::lcd::print(0, "auton:%d  team:%c", auton, team);
@@ -29,7 +30,6 @@ void on_left_button() {
 	pros::lcd::print(0, "auton:%d  team:%c", auton, team);
 }
 
-bool seesRing = false;
 void midlift(){
 	while (true) {
 		if (midlifter.get_position() != liftpos){
@@ -37,10 +37,18 @@ void midlift(){
 		} else {
 			midlifter.brake();
 		}
-		if (shouldIntake){
+		delay(20);
+	}
+}
+
+
+void ringcheckers(){
+	while(true){
+		if (intaking){
 			if (team == 'b'){
 				if (round(optical_sensor.get_hue() / 15) == 0){
 					intake.move(-127);
+
 				} else {
 					intake.move(127);
 				}
@@ -50,12 +58,15 @@ void midlift(){
 				} else {
 					intake.move(127);
 				}
-			}
+			}	
+		} else {
+			intake.brake();
 		}
-		delay(20);
+		delay(20);	
 	}
 }
 
+	
 
 
 void initialize() {
@@ -71,7 +82,7 @@ void initialize() {
 	sylib::initialize();
 
 	Task liftTask(midlift);
-	
+	Task ringcheck(ringcheckers);
 	lightsCheck();
 	midlifter.set_brake_mode(E_MOTOR_BRAKE_HOLD);
 	intakeLifter.set_value(intakePOS);
@@ -98,20 +109,22 @@ void autonomous() {
 
 void opcontrol() {
 	while (true) {
+		pros::lcd::print(1, "front motors: %f, %f",  LeftFront.get_temperature(),RightFront.get_temperature());
+		pros::lcd::print(2, "middle motors: %f, %f", LeftMid.get_temperature(),RightMid.get_temperature());
+		pros::lcd::print(3, "back motors: %f, %f",   LeftBack.get_temperature(),RightBack.get_temperature());
 		int dir = controller.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
 		int turn = -controller.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
 		LDrive.move(dir - turn);
 		RDrive.move(dir + turn);
 
 		if (controller.get_digital(E_CONTROLLER_DIGITAL_R2)) {
-			shouldIntake = true;
+			intaking = true;
 		} else if (controller.get_digital(E_CONTROLLER_DIGITAL_R1)) {
-			shouldIntake = false;
 			intake.move(-127);
 		} else {
-			shouldIntake = false;
-			intake.brake();
+			intake = false;
 		}
+
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L1)) {
 			midliftPOS += 1;
 			if (midliftPOS == 3) {

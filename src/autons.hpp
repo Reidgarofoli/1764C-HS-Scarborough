@@ -4,32 +4,45 @@
 void auton_0() {
     chassis.setPose(0,0,180);
     if (team == 'r'){
+        int start = millis();
         chassis.moveToPose(0, 25, 180, 2000, {.forwards = false, .minSpeed = 95}, false);
-        chassis.moveToPose(-7, 43, 150, 2000, {.forwards = false}, false);
-        mogovalue = true;
-        mogomech.set_value(mogovalue);
-        delay(200);
-        intake.move(127);
-        chassis.turnTo(-10, 30, 2000, true, 127, false);
-        chassis.moveToPoint(-10, 26, 400, true, 127, false);
-        chassis.moveToPoint(-10, 30, 2000, true, 127, false);
-        chassis.moveToPose(-5, 40, 180, 2000, {.forwards = false}, false);
-        intake.brake();
-        mogovalue = false;
-        mogomech.set_value(mogovalue);
-        chassis.turnTo(-26, 34, 2000, false, 127, false);
-        chassis.moveToPose(-26, 34, 90, 2000, {.forwards = false}, false);
+        chassis.moveToPose(-7, 44, 150, 2000, {.forwards = false}, false);
         mogovalue = true;
         mogomech.set_value(mogovalue);
         delay(100);
-        intake.move(0);
+        intaking = true;
+        chassis.turnTo(-10, 30, 2000, true, 127, false);
+        chassis.moveToPoint(-10, 26, 400, true, 127, false);
+        intaking = false;
+        mogovalue = false;
+        mogomech.set_value(mogovalue);
+        chassis.moveToPoint(-10, 25, 400, true, 127, false);
+
+        chassis.turnTo(-28, 32, 2000, false, 127, false);
+        chassis.moveToPose(-28, 32, chassis.getPose().theta , 2000, {.forwards = false}, false);
+        mogovalue = true;
+        mogomech.set_value(mogovalue);
+        delay(100);
+        
+        intaking = true;
         chassis.moveToPose(-50, 10, 270, 2000, {}, false);
+        chassis.moveToPose(-60, 10, 270, 2000, {.maxSpeed=30}, false);
+        chassis.turnTo(-60, 100, 2000, true, 127, false);
+        chassis.moveToPose(-60, 50, 270, 2000, {.maxSpeed=30}, false);
+
+
+        /*
         doinkerValue = !doinkerValue;
 		doinker.set_value(doinkerValue);
-        chassis.turnTo(-60, 20, 2000, true, 80, false);
+        delay(200);
+        chassis.turnTo(-50, 25, 2000, true, 25, false);
+        chassis.moveToPoint(-50,25,2000,true,127,false);
         doinkerValue = !doinkerValue;
 		doinker.set_value(doinkerValue);
-        chassis.moveToPoint(-60, 20, 2000, true, 90, false);
+        chassis.moveToPose(-60, 15, 270, 1000, {.minSpeed = 80}, false);
+        int end = millis();
+        printf("auton took %d seconds\n", (end - start) / 1000);
+        */
     }
 }
 
@@ -53,7 +66,7 @@ void auton_4() {//crosby's skills auton
     //                    x, y, ignore, drctn t= frwrd, speed
     intake.move(100);//starts intake "move"=go
     delay(1000);
-   intake.brake(); //stops intake "brake"= stop
+    intake.move(0); //stops intake "brake"= stop
     delay(300);
     //hopefully intake spins and then stops = ring on alliance stake
  chassis.moveToPoint(0,24,10000,true,90);
@@ -75,13 +88,13 @@ chassis.moveToPoint(-65,17,10000,true, 45);
  
  intake.move(127);
  delay(8000);
- intake.brake();
+ intake.move(0);
 
 chassis.moveToPoint(-65,-5,10000, false);//go to corner 
 delay(2000);
 mogomech.set_value(!mogovalue);
 mogovalue = !mogovalue;
-intake.brake();
+intake.move(0);
 }
 
 void autonselect(int auton) {

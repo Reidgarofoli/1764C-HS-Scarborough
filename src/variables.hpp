@@ -40,8 +40,7 @@ double midmid = -105;
 double highmid = -420;
 double liftpos;
 bool mogovalue = false;
-bool doinkerValue = true;
-bool shouldIntake = false;
+bool doinkerValue = false;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
