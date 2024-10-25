@@ -60,13 +60,16 @@ void auton_3() {
 }
 
 void auton_4() {//crosby's skills auton
+
+    mogomech.set_value(!mogovalue);
+mogovalue = !mogovalue;
     chassis.setPose(0,0,0); // set up right againg the alliance stake
 
     //chassis.moveToPoint(0,0,1000000,true,90)
     //                    x, y, ignore, drctn t= frwrd, speed
     intake.move(100);//starts intake "move"=go
     delay(1000);
-    intake.move(0); //stops intake "brake"= stop
+   intake.brake(); //stops intake "brake"= stop
     delay(300);
     //hopefully intake spins and then stops = ring on alliance stake
  chassis.moveToPoint(0,24,10000,true,90);
@@ -83,18 +86,30 @@ chassis.moveToPoint(-18,16,10000,false,90);
    mogovalue = !mogovalue;
    delay(1000);
     //first goal collecteds
-chassis.turnTo(-65,17,10000,true, 90);
-chassis.moveToPoint(-65,17,10000,true, 45);
- 
- intake.move(127);
- delay(8000);
- intake.move(0);
+chassis.turnTo(-65,15,2000, true);
+chassis.moveToPoint(-60,15,11000,true,40);// y tf is this not happening?????? im literaly about to crash out:
 
-chassis.moveToPoint(-65,-5,10000, false);//go to corner 
-delay(2000);
+ intake.move(127);
+ delay(2800);
+ //
+
+chassis.moveToPoint(-75,-5,4000, false);//go to corner 
+delay(3000);
 mogomech.set_value(!mogovalue);
 mogovalue = !mogovalue;
-intake.move(0);
+delay(1000);
+chassis.moveToPoint(-18,16,5000,true,90);
+chassis.turnTo(18,16,2000,false,90);
+chassis.moveToPoint(16,14,6000,false,70);
+delay(3000);
+mogomech.set_value(!mogovalue);
+mogovalue = !mogovalue;
+delay(2000);
+chassis.turnTo(50,14,2000,true,90);
+
+chassis.moveToPoint(56,14,8000,true,40);
+
+//intake.brake();
 }
 
 void autonselect(int auton) {
