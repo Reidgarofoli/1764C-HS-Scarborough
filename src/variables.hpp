@@ -29,7 +29,7 @@ pros::ADIDigitalOut doinker (doinkerport); // this is the thing that clears the 
 pros::ADIDigitalOut intakeLifter (intakeport); // this is the thing that changes if we get the top or bottom ring
 
 bool intakePOS = false;
-bool intaking = false;
+int intaking = 0;
 //speed of intake
 int intakespeed = 127;
 int maxauto = 4;

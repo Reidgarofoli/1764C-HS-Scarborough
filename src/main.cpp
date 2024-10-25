@@ -44,7 +44,7 @@ void midlift(){
 
 void ringcheckers(){
 	while(true){
-		if (intaking){
+		if (intaking == 1){
 			if (team == 'b'){
 				if (round(optical_sensor.get_hue() / 15) == 0){
 					intake.move(-127);
@@ -58,7 +58,9 @@ void ringcheckers(){
 				} else {
 					intake.move(127);
 				}
-			}
+			}	
+		} else if(intaking == 0) {
+			intake.brake();
 		}
 		delay(20);	
 	}
@@ -116,13 +118,12 @@ void opcontrol() {
 		RDrive.move(dir + turn);
 
 		if (controller.get_digital(E_CONTROLLER_DIGITAL_R2)) {
-			intaking = true;
+			intaking = 1;
 		} else if (controller.get_digital(E_CONTROLLER_DIGITAL_R1)) {
-			intaking = false;
 			intake.move(-127);
+			intaking = 2;
 		} else {
-			intaking = false;
-			intake.move(0);
+			intaking = 0;
 		}
 
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L1)) {

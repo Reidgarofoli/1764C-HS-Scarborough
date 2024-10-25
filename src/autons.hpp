@@ -10,10 +10,10 @@ void auton_0() {
         mogovalue = true;
         mogomech.set_value(mogovalue);
         delay(100);
-        intaking = true;
+        intaking = 1;
         chassis.turnTo(-10, 30, 2000, true, 127, false);
         chassis.moveToPoint(-10, 26, 400, true, 127, false);
-        intaking = false;
+        intaking = 0;
         mogovalue = false;
         mogomech.set_value(mogovalue);
         chassis.moveToPoint(-10, 25, 400, true, 127, false);
@@ -24,7 +24,7 @@ void auton_0() {
         mogomech.set_value(mogovalue);
         delay(100);
         
-        intaking = true;
+        intaking = 1;
         chassis.moveToPose(-50, 10, 270, 2000, {}, false);
         chassis.moveToPose(-60, 10, 270, 2000, {.maxSpeed=30}, false);
         chassis.turnTo(-60, 100, 2000, true, 127, false);
