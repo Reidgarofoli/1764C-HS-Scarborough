@@ -58,9 +58,7 @@ void ringcheckers(){
 				} else {
 					intake.move(127);
 				}
-			}	
-		} else {
-			intake.brake();
+			}
 		}
 		delay(20);	
 	}
@@ -120,10 +118,11 @@ void opcontrol() {
 		if (controller.get_digital(E_CONTROLLER_DIGITAL_R2)) {
 			intaking = true;
 		} else if (controller.get_digital(E_CONTROLLER_DIGITAL_R1)) {
-			intake = false;
+			intaking = false;
 			intake.move(-127);
 		} else {
-			intake = false;
+			intaking = false;
+			intake.move(0);
 		}
 
 		if (controller.get_digital_new_press(E_CONTROLLER_DIGITAL_L1)) {
